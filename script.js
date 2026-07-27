@@ -23,7 +23,8 @@ tabs.forEach(tab => {
 // =============================================
 // 3. РАБОТА С СЕРВЕРОМ (БЕЗ КЛЮЧЕЙ!)
 // =============================================
-const SERVER_URL = 'https://твой-сервер.onrender.com'; // Замени на свой URL после деплоя
+const SERVER_URL = "https://fantastic-octo-enigma.onrender.com;"
+// Замени на свой URL после деплоя
 
 async function loadProfile() {
     const user = tg.initDataUnsafe?.user;
