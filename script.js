@@ -54,7 +54,7 @@ async function loadProfile() {
             <p><strong>Имя:</strong> ${data.username}</p>
             <p><strong>Баланс:</strong> ${data.balance} TON</p>
             <p><strong>Побед:</strong> ${data.wins}</p>
-            <p><strong>Поражений:</strong> ${data.losses}</p>
+           
         `;
     } catch (error) {
         document.getElementById('profileInfo').innerHTML = `<p>Ошибка подключения к серверу</p>`;
