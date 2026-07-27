@@ -55,7 +55,7 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: #d4edda;  /* ← вот этот нежный салатовый */
+    background: #c8e6c9;  /* ← вот этот нежный салатовый */
     border-top: 1px solid var(--section-separator);
     display: flex;
     justify-content: space-around;
