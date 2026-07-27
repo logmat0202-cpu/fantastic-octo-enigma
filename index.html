@@ -1,16 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Мое приложение</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GiftMarket</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>Привет, мир!</h1>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        // Это чтобы Телеграм понял, что приложение загрузилось
-        window.Telegram.WebApp.ready();
-    </script>
+
+    <div class="container">
+        <!-- ========================================= -->
+        <!-- СТРАНИЦА 1: МАГАЗИН (пустая)              -->
+        <!-- ========================================= -->
+        <div id="page-shop" class="page">
+            <h2>🛍️ Магазин</h2>
+            <p>Здесь будут гифты</p>
+        </div>
+
+        <!-- ========================================= -->
+        <!-- СТРАНИЦА 2: ПВП (открыта по умолчанию)    -->
+        <!-- ========================================= -->
+        <div id="page-pvp" class="page active">
+            <h2>⚔️ ПВП</h2>
+            <p>Здесь будут бои</p>
+        </div>
+
+        <!-- ========================================= -->
+        <!-- СТРАНИЦА 3: ПРОФИЛЬ (пустой)              -->
+        <!-- ========================================= -->
+        <div id="page-profile" class="page">
+            <h2>👤 Профиль</h2>
+            <p>Здесь будет информация о тебе</p>
+        </div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- НИЖНЯЯ НАВИГАЦИЯ (3 кнопки)               -->
+    <!-- ========================================= -->
+    <div class="tab-bar">
+        <button class="tab-item" data-page="page-shop">
+            <span class="tab-icon">🛍️</span>
+            Магазин
+        </button>
+        <button class="tab-item active" data-page="page-pvp">
+            <span class="tab-icon">⚔️</span>
+            ПВП
+        </button>
+        <button class="tab-item" data-page="page-profile">
+            <span class="tab-icon">👤</span>
+            Профиль
+        </button>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
