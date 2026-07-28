@@ -29,6 +29,22 @@
             <div id="profileInfo">
                 <p>Загрузка...</p>
             </div>
+            <!-- ===== БЛОК КОШЕЛЬКА ===== -->
+<div class="wallet-section">
+    <h3>💳 TON Кошелек</h3>
+    
+    <button id="connectWalletBtn" class="wallet-btn">
+        🔌 Подключить кошелек
+    </button>
+    
+    <div id="walletInfo" style="display: none;">
+        <p><strong>Адрес:</strong> <span id="walletStatus"></span></p>
+        <p><strong>Баланс:</strong> <span id="walletBalance">—</span></p>
+        <button id="disconnectWalletBtn" class="wallet-btn" style="background: #e74c3c;">
+            🔌 Отключить
+        </button>
+    </div>
+</div>
         </div>
     </div>
 
