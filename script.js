@@ -68,4 +68,13 @@ async function loadProfile() {
 loadProfile();
 // =============================================
 // =============================================
-
+// script.js
+document.addEventListener('DOMContentLoaded', function() {
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://logmat0202-cpu.github.io/fantastic-octo-enigma/tonconnect-manifest.json',
+        buttonRootId: 'con'
+    });
+    
+    // Если нужно, можете сохранить в глобальную область видимости
+    window.tonConnectUI = tonConnectUI;
+});
