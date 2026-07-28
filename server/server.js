@@ -48,7 +48,7 @@ app.post('/api/user', async (req, res) => {
         if (!user) {
             const { data: newUser, error: insertError } = await supabase
                 .from('users')
-                .insert([{ telegram_id, username: username || 'Игрок', balance: 0, wins: 0, losses: 0 }])
+                .insert([{ telegram_id, username: username || 'Игрок', balance: 0, wins: 0 }])
                 .select()
                 .single();
 
