@@ -68,22 +68,26 @@ async function loadProfile() {
 loadProfile();
 // =============================================
 // =============================================
-// ПОДКЛЮЧЕНИЕ TON КОШЕЛЬКА
-// =============================================
-
 // =============================================
 // ПОДКЛЮЧЕНИЕ TON КОШЕЛЬКА (РАБОЧАЯ ВЕРСИЯ)
 // =============================================
 
 let tonConnector = null;
 
-// Манифест должен быть доступен по HTTPS
-const MANIFEST_URL = 'https://' + window.location.hostname + '/tonconnect-manifest.json';
+// Манифест должен лежать в корне проекта
+const MANIFEST_URL = window.location.origin + '/tonconnect-manifest.json';
 
 async function initTonConnect() {
     try {
-        // Создаём экземпляр TonConnect
-        tonConnector = new TonConnect({
+        // Проверяем, что библиотека загружена
+        if (typeof window.TonConnect === 'undefined') {
+            console.error('TON Connect SDK не загружен!');
+            document.getElementById('connectWalletBtn').textContent = '❌ TON не загружен';
+            return;
+        }
+
+        // Создаём экземпляр
+        tonConnector = new window.TonConnect({
             manifestUrl: MANIFEST_URL
         });
 
@@ -105,19 +109,10 @@ async function initTonConnect() {
         // Кнопка "Подключить"
         document.getElementById('connectWalletBtn').addEventListener('click', async () => {
             try {
-                await tonConnector.connect({
-                    // Список поддерживаемых кошельков
-                    wallets: [
-                        'tonkeeper',
-                        'tonhub',
-                        'tonwallet',
-                        'mytonwallet',
-                        'crystal'
-                    ]
-                });
+                await tonConnector.connect();
             } catch (error) {
                 console.error('Ошибка подключения:', error);
-                tg.showAlert('Не удалось подключить кошелек. Попробуйте снова.');
+                tg.showAlert('Не удалось подключить кошелек: ' + error.message);
             }
         });
 
@@ -126,8 +121,10 @@ async function initTonConnect() {
             tonConnector.disconnect();
         });
 
+        document.getElementById('connectWalletBtn').textContent = '🔌 Подключить кошелек';
+
     } catch (error) {
-        console.error('Ошибка инициализации TON Connect:', error);
+        console.error('Ошибка инициализации TON:', error);
         document.getElementById('connectWalletBtn').textContent = '❌ Ошибка TON';
     }
 }
@@ -141,8 +138,6 @@ function updateUI(wallet) {
     document.getElementById('walletBalance').textContent = 'Загрузка...';
     document.getElementById('connectWalletBtn').style.display = 'none';
     document.getElementById('walletInfo').style.display = 'block';
-    
-    // Загружаем баланс
     loadBalance(address);
 }
 
@@ -167,7 +162,10 @@ async function loadBalance(address) {
     }
 }
 
-// Запускаем при загрузке
+// Запускаем инициализацию после загрузки
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initTonConnect, 500);
+});
 document.addEventListener('DOMContentLoaded', () => {
     // Ждём 0.5 сек, чтобы всё загрузилось
     setTimeout(initTonConnect, 500);
