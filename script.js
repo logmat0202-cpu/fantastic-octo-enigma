@@ -344,3 +344,171 @@ setTimeout(() => {
 }, 1000);
 
 console.log('⚔️ PvP-интерфейс загружен!');
+// =============================================
+// КОЛЕСО (ВИЗУАЛИЗАЦИЯ)
+// =============================================
+
+let wheelCanvas = null;
+let wheelCtx = null;
+let wheelRotation = 0;
+let wheelAnimationId = null;
+let wheelPlayers = [];
+
+function initWheel() {
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) return;
+    
+    wheelCanvas = canvas;
+    wheelCtx = canvas.getContext('2d');
+    drawWheel();
+}
+
+function drawWheel(highlightWinner = null) {
+    const ctx = wheelCtx;
+    const canvas = wheelCanvas;
+    if (!ctx || !canvas) return;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = Math.min(centerX, centerY) - 10;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Если нет игроков — рисуем пустое колесо
+    if (!wheelPlayers || wheelPlayers.length === 0) {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fill();
+        ctx.fillStyle = '#999';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Ждём игроков', centerX, centerY);
+        return;
+    }
+
+    // Считаем общую сумму ставок
+    const totalBet = wheelPlayers.reduce((sum, p) => sum + p.bet, 0);
+    
+    // Рисуем сектора
+    let startAngle = wheelRotation;
+    const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#e84393'];
+    
+    wheelPlayers.forEach((player, index) => {
+        const sliceAngle = (player.bet / totalBet) * 2 * Math.PI;
+        const endAngle = startAngle + sliceAngle;
+        
+        // Рисуем сектор
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        
+        ctx.fillStyle = colors[index % colors.length];
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Рисуем текст (имя и ставка)
+        const midAngle = startAngle + sliceAngle / 2;
+        const textRadius = radius * 0.65;
+        const textX = centerX + Math.cos(midAngle) * textRadius;
+        const textY = centerY + Math.sin(midAngle) * textRadius;
+        
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.rotate(midAngle + (midAngle > Math.PI/2 ? Math.PI : 0));
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(`${player.username} (${player.bet.toFixed(1)} TON)`, 0, 0);
+        ctx.restore();
+        
+        startAngle = endAngle;
+    });
+    
+    // Центральный круг
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 20, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.strokeStyle = '#333';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Стрелка-указатель сверху
+    ctx.beginPath();
+    ctx.moveTo(centerX, 10);
+    ctx.lineTo(centerX - 15, 25);
+    ctx.lineTo(centerX + 15, 25);
+    ctx.closePath();
+    ctx.fillStyle = '#e74c3c';
+    ctx.fill();
+    ctx.strokeStyle = '#c0392b';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+// Анимация вращения колеса
+function spinWheel(players, callback) {
+    wheelPlayers = players;
+    
+    const totalBet = players.reduce((sum, p) => sum + p.bet, 0);
+    const random = Math.random() * totalBet;
+    let cumulative = 0;
+    let winner = players[0];
+    for (const player of players) {
+        cumulative += player.bet;
+        if (random <= cumulative) {
+            winner = player;
+            break;
+        }
+    }
+    
+    // Вычисляем угол, куда должна указывать стрелка
+    const targetAngle = 2 * Math.PI * (1 - random / totalBet);
+    const finalRotation = wheelRotation + 2 * Math.PI * 5 + targetAngle; // 5 полных оборотов
+    
+    const startRotation = wheelRotation;
+    const duration = 4000; // 4 секунды
+    const startTime = Date.now();
+    
+    function animateSpin() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // EaseOutCubic: замедление к концу
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        wheelRotation = startRotation + (finalRotation - startRotation) * easeOut;
+        
+        drawWheel();
+        
+        if (progress < 1) {
+            requestAnimationFrame(animateSpin);
+        } else {
+            wheelRotation = finalRotation;
+            drawWheel();
+            if (callback) callback(winner);
+        }
+    }
+    
+    animateSpin();
+}
+
+// Обновление колеса при обновлении статуса
+function updateWheelFromStatus(data) {
+    if (data.players && data.players.length > 0) {
+        wheelPlayers = data.players.map(p => ({
+            username: p.username || 'Игрок',
+            bet: p.bet || 0
+        }));
+    } else {
+        wheelPlayers = [];
+    }
+    drawWheel();
+}
