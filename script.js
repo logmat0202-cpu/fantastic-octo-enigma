@@ -70,9 +70,9 @@ loadProfile();
 // =============================================
 // =============================================
 const tonConnectUI = new TonConnectUI({
-    manifestUrl: "https://your-domain.com/tonconnect-manifest.json",
+    manifestUrl: "https://logmat0202-cpu.github.io/fantastic-octo-enigma/tonconnect-manifest.json",
     buttonRootId: "ton-connect",
     actionsConfiguration: {
-        twaReturnUrl: "https://t.me/YourBot"
+        twaReturnUrl: "https://t.me/PVP_wasd_bot"
     }
 });
