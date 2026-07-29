@@ -153,7 +153,18 @@ async function updatePvpStatus() {
         const betButtons = document.getElementById('betButtons');
 
         if (!statusDisplay) return;
+// Обновляем колесо
+updateWheelFromStatus(data);
 
+// Если игра активна — показываем сообщение
+if (data.isActive) {
+    document.getElementById('pvpStatus').innerHTML = `
+        <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
+        <p>Игроков: ${data.count}</p>
+        <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
+    `;
+    document.getElementById('betButtons').style.display = 'none';
+}
         // Обновляем статус
         if (data.isActive) {
             statusDisplay.innerHTML = `
