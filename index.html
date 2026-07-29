@@ -4,59 +4,62 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GiftMarket</title>
-    <!-- TON Connect SDK (стабильная версия) -->
+    <!-- TON Connect UI -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-     <!-- ===== ПЛАВАЮЩИЙ КОШЕЛЕК (UI) ===== -->
-<div id="walletContainer" style="
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 99999;
-    background: var(--tg-theme-bg-color, #ffffff);
-    border-radius: 12px;
-    padding: 8px 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
-    min-width: 140px;
-    text-align: center;
-">
-    <!-- Сюда UI вставит свою кнопку -->
-    <div id="ton-connect-button"></div>
-</div>
-           
+
+    <!-- ========================================= -->
+    <!-- ПЛАВАЮЩИЙ КОШЕЛЕК (UI) — САМЫЙ ПЕРВЫЙ -->
+    <!-- ========================================= -->
+    <div id="walletContainer" style="
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 99999;
+        background: var(--tg-theme-bg-color, #ffffff);
+        border-radius: 12px;
+        padding: 8px 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        border: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
+        min-width: 140px;
+        text-align: center;
+    ">
+        <div id="ton-connect-button"></div>
+    </div>
+
+    <!-- ========================================= -->
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <!-- ========================================= -->
     <div class="container">
-        
-        <!-- ===== СТРАНИЦА 1: МАГАЗИН ===== -->
+
+        <!-- СТРАНИЦА 1: МАГАЗИН -->
         <div id="page-shop" class="page">
             <h2>🛍️ Магазин</h2>
             <p>Здесь будут гифты</p>
         </div>
 
-        <!-- ===== СТРАНИЦА 2: ПВП ===== -->
+        <!-- СТРАНИЦА 2: ПВП -->
         <div id="page-pvp" class="page active">
             <h2>⚔️ ПВП</h2>
             <p>Здесь будут бои</p>
         </div>
 
-        <!-- ===== СТРАНИЦА 3: ПРОФИЛЬ ===== -->
+        <!-- СТРАНИЦА 3: ПРОФИЛЬ -->
         <div id="page-profile" class="page">
             <h2>👤 Профиль</h2>
             <div id="profileInfo">
                 <p>Загрузка...</p>
-                <!-- ===== БЛОК КОШЕЛЬКА ===== -->
-<!-- ========================================= -->
-<!-- ПЛАВАЮЩИЙ БЛОК КОШЕЛЬКА (ПРАВЫЙ ВЕРХНИЙ УГОЛ) -->
-</div>
+            </div>
+        </div>
 
-         
-</div>
-        
+    </div>
 
-    <!-- ===== НИЖНЯЯ НАВИГАЦИЯ ===== -->
+    <!-- ========================================= -->
+    <!-- НИЖНЯЯ НАВИГАЦИЯ -->
+    <!-- ========================================= -->
     <div class="tab-bar">
         <button class="tab-item" data-page="page-shop">
             <span class="tab-icon">🛍️</span>
