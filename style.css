@@ -99,3 +99,11 @@ body {
     }
 }
 /* ===== TON CONNECT UI ===== */
+#ton-connect-button {
+    display: none;
+    margin: 10px 0;
+}
+
+#ton-connect-button ton-connect-button {
+    width: 100% !important;
+}
