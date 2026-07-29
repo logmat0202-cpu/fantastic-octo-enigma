@@ -99,21 +99,3 @@ body {
     }
 }
 /* ===== TON CONNECT UI ===== */
-#ton-connect-button {
-    display: block;
-    width: 100%;
-}
-
-#ton-connect-button ton-connect-button {
-    width: 100% !important;
-}
-
-/* Адаптация под тему Telegram */
-ton-connect-button::part(button) {
-    background: var(--tg-theme-button-color, #2481cc) !important;
-    color: var(--tg-theme-button-text-color, #ffffff) !important;
-    border-radius: 8px !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    padding: 6px 12px !important;
-}
