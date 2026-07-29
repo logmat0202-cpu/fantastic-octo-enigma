@@ -99,11 +99,25 @@ body {
     }
 }
 /* ===== TON CONNECT UI ===== */
-#ton-connect-button {
-    display: none;
-    margin: 10px 0;
+/* ===== PVP ===== */
+.bet-btn {
+    transition: opacity 0.2s;
 }
 
-#ton-connect-button ton-connect-button {
-    width: 100% !important;
+.bet-btn:active {
+    opacity: 0.7;
+}
+
+.pvp-player {
+    padding: 6px 0;
+    border-bottom: 1px solid var(--section-separator, #e0e0e0);
+}
+
+.pvp-player:last-child {
+    border-bottom: none;
+}
+
+#pvpPlayers {
+    max-height: 120px;
+    overflow-y: auto;
 }
