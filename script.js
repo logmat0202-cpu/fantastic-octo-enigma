@@ -147,7 +147,7 @@ async function updatePvpStatus() {
     try {
         const response = await fetch(`${SERVER_URL}/api/pvp/status`);
         const data = await response.json();
-
+        updateWheel(data.players || []);
         const statusDisplay = document.getElementById('pvpStatus');
         const playersList = document.getElementById('pvpPlayers');
         const betButtons = document.getElementById('betButtons');
