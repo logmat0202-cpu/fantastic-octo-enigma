@@ -31,20 +31,20 @@
             <div id="profileInfo">
                 <p>Загрузка...</p>
                 <!-- ===== БЛОК КОШЕЛЬКА ===== -->
-<div class="wallet-section">
-    <h3>💳 TON Кошелек</h3>
-    
-    <!-- 👇 КОНТЕЙНЕР ДЛЯ КНОПКИ TON CONNECT -->
-    <div id="ton-connect-button"></div>
-    
-    <button id="connectWalletBtn" class="wallet-btn">
-        🔌 Подключить кошелек
+<!-- ========================================= -->
+<!-- ПЛАВАЮЩИЙ БЛОК КОШЕЛЬКА (ПРАВЫЙ ВЕРХНИЙ УГОЛ) -->
+<!-- ========================================= -->
+<div class="wallet-float" id="walletFloat">
+    <!-- Кнопка подключения -->
+    <button id="connectWalletBtn" class="wallet-btn-small">
+        🔌 Подключить
     </button>
     
-    <div id="walletInfo" style="display: none;">
-        <p><strong>Адрес:</strong> <span id="walletStatus"></span></p>
-        <p><strong>Баланс:</strong> <span id="walletBalance">—</span></p>
-        <button id="disconnectWalletBtn" class="wallet-btn" style="background: #e74c3c;">
+    <!-- Информация о кошельке (скрыта по умолчанию) -->
+    <div class="wallet-info" id="walletInfoFloat">
+        <div class="wallet-address" id="walletStatusFloat">—</div>
+        <div class="wallet-balance" id="walletBalanceFloat">—</div>
+        <button id="disconnectWalletBtn" class="wallet-btn-small disconnect">
             🔌 Отключить
         </button>
     </div>
