@@ -68,58 +68,82 @@ async function loadProfile() {
 loadProfile();
 // =============================================
 // =============================================
+// =============================================
 // ПОДКЛЮЧЕНИЕ TON КОШЕЛЬКА (UI)
 // =============================================
 
 let tonConnectUI = null;
+
+// Манифест
 const MANIFEST_URL = window.location.origin + '/tonconnect-manifest.json';
 
-async function initWalletUI() {
+async function initTonConnect() {
     try {
-        // Проверяем загрузку UI-библиотеки
-        if (typeof window.TonConnectUI === 'undefined') {
-            console.error('❌ TON Connect UI не загружен!');
+        // Проверяем, загружена ли библиотека
+        if (typeof TON_CONNECT_UI === 'undefined') {
+            console.error('TON Connect UI не загружен!');
+            document.getElementById('connectWalletBtn').textContent = '❌ TON не загружен';
             return;
         }
 
-        // Создаём экземпляр UI
-        tonConnectUI = new window.TonConnectUI({
+        // Создаём экземпляр с кнопкой
+        tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: MANIFEST_URL,
-            buttonRootId: 'ton-connect-button' // контейнер для кнопки
+            buttonRootId: 'ton-connect-button' // сюда вставится кнопка
         });
 
         // Подписываемся на изменения статуса
         tonConnectUI.onStatusChange((wallet) => {
             if (wallet) {
-                console.log('✅ Кошелек подключен:', wallet.account.address);
-                // Баланс можно загрузить отдельно
-                loadBalanceUI(wallet.account.address);
+                updateUI(wallet);
             } else {
-                console.log('❌ Кошелек отключен');
+                resetUI();
             }
         });
+
+        // Показываем кнопку, скрываем старую
+        document.getElementById('ton-connect-button').style.display = 'block';
+        document.getElementById('connectWalletBtn').style.display = 'none';
 
         console.log('✅ TON Connect UI инициализирован');
 
     } catch (error) {
-        console.error('❌ Ошибка инициализации UI:', error);
+        console.error('Ошибка инициализации TON:', error);
+        document.getElementById('connectWalletBtn').textContent = '❌ Ошибка TON';
     }
 }
 
-// Загрузка баланса (для UI)
-async function loadBalanceUI(address) {
+// Обновление интерфейса при подключении
+function updateUI(wallet) {
+    const address = wallet.account.address;
+    document.getElementById('walletStatus').innerHTML = `
+        ✅ ${address.slice(0, 6)}...${address.slice(-4)}
+    `;
+    document.getElementById('walletBalance').textContent = 'Загрузка...';
+    document.getElementById('walletInfo').style.display = 'block';
+    loadBalance(address);
+}
+
+// Сброс интерфейса при отключении
+function resetUI() {
+    document.getElementById('walletStatus').textContent = '❌ Не подключен';
+    document.getElementById('walletBalance').textContent = '—';
+    document.getElementById('walletInfo').style.display = 'none';
+}
+
+// Загрузка баланса
+async function loadBalance(address) {
     try {
         const response = await fetch(`https://tonapi.io/v2/accounts/${address}`);
         const data = await response.json();
         const balance = data.balance / 1e9;
-        console.log(`💰 Баланс: ${balance.toFixed(2)} TON`);
-        // UI сам показывает баланс в кнопке
+        document.getElementById('walletBalance').textContent = `${balance.toFixed(2)} TON`;
     } catch (error) {
-        console.error('Ошибка загрузки баланса:', error);
+        document.getElementById('walletBalance').textContent = 'Ошибка';
     }
 }
 
-// Запускаем через 1 секунду
+// Запускаем
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initWalletUI, 1000);
+    setTimeout(initTonConnect, 500);
 });
