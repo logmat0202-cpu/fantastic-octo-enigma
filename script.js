@@ -153,3 +153,40 @@ async function loadBalance(address) {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initTonConnect, 1000);
 });
+// =============================================
+// ПРИНУДИТЕЛЬНЫЙ ПОКАЗ КОШЕЛЬКА (ЗАЩИТА ОТ ИСЧЕЗНОВЕНИЯ)
+// =============================================
+
+function forceShowWallet() {
+    const wallet = document.getElementById('walletFloat');
+    if (!wallet) return;
+
+    // Убираем все возможные скрывающие стили
+    wallet.style.display = 'block';
+    wallet.style.visibility = 'visible';
+    wallet.style.opacity = '1';
+    wallet.style.pointerEvents = 'auto';
+    wallet.style.zIndex = '99999';
+    
+    // Показываем все дочерние элементы
+    const children = wallet.querySelectorAll('*');
+    children.forEach(el => {
+        el.style.display = '';
+        el.style.visibility = '';
+        el.style.opacity = '';
+    });
+    
+    console.log('✅ Кошелёк принудительно показан');
+}
+
+// Показываем через 2 секунды после загрузки
+setTimeout(forceShowWallet, 2000);
+
+// И каждые 3 секунды проверяем, не исчез ли он
+setInterval(() => {
+    const wallet = document.getElementById('walletFloat');
+    if (wallet && (wallet.style.display === 'none' || wallet.style.visibility === 'hidden')) {
+        console.warn('⚠️ Кошелёк исчез, показываю снова');
+        forceShowWallet();
+    }
+}, 3000);
