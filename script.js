@@ -309,3 +309,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 setInterval(updatePvpStatus, 3000);
+// =============================================
+// БАЛАНС В ПРАВОМ ВЕРХНЕМ УГЛУ (НА ВСЕХ СТРАНИЦАХ)
+// =============================================
+
+async function updateGlobalBalance() {
+    const user = tg.initDataUnsafe?.user;
+    if (!user) {
+        document.getElementById('balanceFloatText').textContent = 'Ошибка';
+        return;
+    }
+
+    try {
+        const response = await fetch(`${SERVER_URL}/api/user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                telegram_id: user.id.toString(),
+                username: user.first_name || 'Игрок'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            document.getElementById('balanceFloatText').textContent = 'Ошибка';
+            return;
+        }
+
+        document.getElementById('balanceFloatText').textContent = `${data.balance.toFixed(2)} TON`;
+    } catch (error) {
+        console.error('Ошибка загрузки баланса:', error);
+        document.getElementById('balanceFloatText').textContent = 'Ошибка';
+    }
+}
+
+// Вызываем при загрузке и каждые 10 секунд
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(updateGlobalBalance, 500);
+});
+
+setInterval(updateGlobalBalance, 10000);
