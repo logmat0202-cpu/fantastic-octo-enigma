@@ -106,19 +106,29 @@ async function updateBalanceDisplay() {
 // =============================================
 // СДЕЛАТЬ СТАВКУ
 // =============================================
-async function placeBet(amount) {
+// =============================================
+// СТАВКА (С ПОЛЯ ВВОДА)
+// =============================================
+async function placeBet() {
     const user = tg.initDataUnsafe?.user;
     if (!user) {
         tg.showAlert('Ошибка: не удалось получить данные пользователя');
         return;
     }
 
+    const input = document.getElementById('betInput');
+    const amount = parseFloat(input?.value || 0);
+
+    if (isNaN(amount) || amount < 0.1) {
+        tg.showAlert('❌ Минимальная ставка 0.1 TON');
+        return;
+    }
+
     try {
-        // Проверяем статус пула
+        // Проверяем, не в пуле ли уже
         const statusRes = await fetch(`${SERVER_URL}/api/pvp/status`);
         const statusData = await statusRes.json();
-        
-        // Запрет на ставку, если пользователь уже в пуле
+
         if (statusData.players && statusData.players.some(p => p.telegram_id === user.id.toString())) {
             tg.showAlert('❌ Вы уже сделали ставку! Дождитесь окончания раунда.');
             return;
@@ -149,9 +159,11 @@ async function placeBet(amount) {
         tg.showAlert('❌ Ошибка подключения к серверу');
     }
 }
-
 // =============================================
 // ОБНОВИТЬ СТАТУС PVP
+// =============================================
+// =============================================
+// СТАТУС PVP (С ОБНОВЛЕНИЕМ КОЛЕСА)
 // =============================================
 async function updatePvpStatus() {
     try {
@@ -160,24 +172,12 @@ async function updatePvpStatus() {
 
         const statusDisplay = document.getElementById('pvpStatus');
         const playersList = document.getElementById('pvpPlayers');
-        const betButtons = document.getElementById('betButtons');
+        const betSection = document.getElementById('betSection');
 
-        // =============================================
-        // ОБНОВЛЯЕМ КОЛЕСО (ПРЯМО ЗДЕСЬ)
-        // =============================================
-        if (data.players && data.players.length > 0) {
-            wheelPlayers = data.players.map(p => ({
-                username: p.username || 'Игрок',
-                bet: p.bet || 0
-            }));
-        } else {
-            wheelPlayers = [];
-        }
-        drawWheel();
+        // ===== ОБНОВЛЯЕМ КОЛЕСО =====
+        updateWheel(data.players || []);
 
-        // =============================================
-        // СТАТУС ИГРЫ
-        // =============================================
+        // ===== СТАТУС =====
         if (!statusDisplay) return;
 
         if (data.isActive) {
@@ -186,47 +186,32 @@ async function updatePvpStatus() {
                 <p>Игроков: ${data.count}</p>
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
-            if (betButtons) betButtons.style.display = 'none';
-            
-            // Запускаем вращение, если ещё не крутится
-            if (!isSpinning && data.players && data.players.length >= 2) {
-                spinWheel(data.players, (winner) => {
-                    console.log('🏆 Победитель:', winner);
-                    setTimeout(() => {
-                        updateBalanceDisplay();
-                        updatePvpStatus();
-                    }, 2000);
-                });
-            }
+            if (betSection) betSection.style.display = 'none';
         } else if (data.count >= 2) {
             statusDisplay.innerHTML = `
                 <p style="color: #f39c12; font-weight: 600;">⏳ Идёт поиск...</p>
                 <p>Игроков: ${data.count}</p>
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
-            if (betButtons) betButtons.style.display = 'none';
+            if (betSection) betSection.style.display = 'none';
         } else {
             statusDisplay.innerHTML = `
                 <p style="color: var(--hint, #999999);">Ожидание игроков...</p>
                 <p>Игроков: ${data.count} / 2+</p>
             `;
-            if (betButtons) betButtons.style.display = 'block';
+            if (betSection) betSection.style.display = 'block';
         }
 
-        // =============================================
-        // СПИСОК ИГРОКОВ
-        // =============================================
+        // ===== СПИСОК ИГРОКОВ =====
         if (playersList && data.players && data.players.length > 0) {
-            playersList.innerHTML = data.players.map(p => 
+            playersList.innerHTML = data.players.map(p =>
                 `<div class="pvp-player">${p.username} — ${p.bet.toFixed(2)} TON</div>`
             ).join('');
         } else if (playersList) {
             playersList.innerHTML = '<div style="color: var(--hint, #999999);">Пока никого нет</div>';
         }
 
-        // =============================================
-        // ОБНОВЛЯЕМ БАЛАНС
-        // =============================================
+        // ===== БАЛАНС =====
         updateBalanceDisplay();
 
     } catch (error) {
