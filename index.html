@@ -27,8 +27,7 @@
             <p>Здесь будут гифты</p>
         </div>
 
-        <!-- СТРАНИЦА 2: ПВП -->
-        <div id="page-pvp" class="page">
+<div id="page-pvp" class="page">
     <h2>⚔️ ПВП Колесо</h2>
 
     <!-- КОЛЕСО -->
@@ -48,14 +47,69 @@
         "></div>
     </div>
 
-    <!-- ОСТАЛЬНЫЕ ЭЛЕМЕНТЫ СТРАНИЦЫ -->
-    <div id="balanceDisplay">💰 Загрузка...</div>
-    <div id="pvpStatus">Ожидание игроков...</div>
-    <div id="pvpPlayers"></div>
-    <div id="betButtons">
-        <button onclick="placeBet(0.1)">0.1 TON</button>
-        <button onclick="placeBet(0.5)">0.5 TON</button>
-        <button onclick="placeBet(1.0)">1.0 TON</button>
+    <!-- БАЛАНС -->
+    <div id="balanceDisplay" style="
+        background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        border-radius: 12px;
+        padding: 12px;
+        margin: 8px 0 16px;
+        font-weight: 600;
+        text-align: center;
+        font-size: 18px;
+    ">💰 Загрузка...</div>
+
+    <!-- СТАТУС -->
+    <div id="pvpStatus" style="
+        background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        text-align: center;
+    ">Загрузка...</div>
+
+    <!-- СПИСОК ИГРОКОВ -->
+    <div id="pvpPlayers" style="
+        background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 16px;
+        min-height: 60px;
+    "></div>
+
+    <!-- СТАВКА (ПОЛЕ ВВОДА) -->
+    <div id="betSection" style="
+        background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 16px;
+        text-align: center;
+    ">
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap;">
+            <input type="number" id="betInput" value="0.1" step="0.1" min="0.1" style="
+                padding: 10px 14px;
+                border-radius: 10px;
+                border: 1px solid var(--section-separator, #ccc);
+                font-size: 16px;
+                width: 120px;
+                background: var(--bg, #fff);
+                color: var(--text, #000);
+            ">
+            <button onclick="placeBet()" class="bet-btn" style="
+                background: var(--tg-theme-button-color, #2481cc);
+                color: var(--tg-theme-button-text-color, #ffffff);
+                border: none;
+                border-radius: 10px;
+                padding: 10px 24px;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 16px;
+            ">
+                🎯 Сделать ставку
+            </button>
+        </div>
+        <div style="font-size: 12px; color: var(--hint, #999999); margin-top: 6px;">
+            Минимальная ставка: 0.1 TON
+        </div>
     </div>
 </div>
 
