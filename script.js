@@ -386,97 +386,98 @@ console.log('⚔️ PvP-интерфейс загружен!');
 // =============================================
 // КОЛЕСО (ИНИЦИАЛИЗАЦИЯ И ОТРИСОВКА)
 // =============================================
+// =============================================
+// КОЛЕСО (ВИЗУАЛИЗАЦИЯ)
+// =============================================
 
-let wheelCanvas = document.getElementById('wheelCanvas');
-let wheelCtx = wheelCanvas ? wheelCanvas.getContext('2d') : null;
-let wheelRotation = 0;
 let wheelPlayers = [];
-
-// Цвета секторов
+let wheelRotation = 0;
+let isSpinning = false;
 const COLORS = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c', '#e67e22', '#e84393'];
 
 function initWheel() {
-    if (!wheelCanvas || !wheelCtx) {
-        console.error('❌ Canvas не найден!');
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) {
+        console.warn('⚠️ Canvas #wheelCanvas не найден');
         return;
     }
-    console.log('✅ Колесо инициализировано');
     drawWheel();
+    console.log('✅ Колесо инициализировано');
 }
 
 function drawWheel() {
-    if (!wheelCtx || !wheelCanvas) return;
+    const canvas = document.getElementById('wheelCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
-    const centerX = wheelCanvas.width / 2;
-    const centerY = wheelCanvas.height / 2;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
     const radius = Math.min(centerX, centerY) - 10;
 
-    wheelCtx.clearRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (!wheelPlayers || wheelPlayers.length === 0) {
-        // Пустое колесо
-        wheelCtx.beginPath();
-        wheelCtx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        wheelCtx.fillStyle = '#e0e0e0';
-        wheelCtx.fill();
-        wheelCtx.fillStyle = '#999';
-        wheelCtx.font = '16px sans-serif';
-        wheelCtx.textAlign = 'center';
-        wheelCtx.textBaseline = 'middle';
-        wheelCtx.fillText('Ждём игроков', centerX, centerY);
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#e0e0e0';
+        ctx.fill();
+        ctx.fillStyle = '#999';
+        ctx.font = '16px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Ждём игроков', centerX, centerY);
         return;
     }
 
-    // Рисуем сектора
     const totalBet = wheelPlayers.reduce((sum, p) => sum + p.bet, 0);
-    let startAngle = wheelRotation;
+    if (totalBet === 0) return;
 
+    let startAngle = wheelRotation;
     wheelPlayers.forEach((player, index) => {
         const sliceAngle = (player.bet / totalBet) * 2 * Math.PI;
         const endAngle = startAngle + sliceAngle;
 
-        wheelCtx.beginPath();
-        wheelCtx.moveTo(centerX, centerY);
-        wheelCtx.arc(centerX, centerY, radius, startAngle, endAngle);
-        wheelCtx.closePath();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
 
-        wheelCtx.fillStyle = COLORS[index % COLORS.length];
-        wheelCtx.fill();
-        wheelCtx.strokeStyle = '#fff';
-        wheelCtx.lineWidth = 2;
-        wheelCtx.stroke();
+        ctx.fillStyle = COLORS[index % COLORS.length];
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
 
-        // Текст
         const midAngle = startAngle + sliceAngle / 2;
-        const textX = centerX + Math.cos(midAngle) * (radius * 0.7);
-        const textY = centerY + Math.sin(midAngle) * (radius * 0.7);
+        const textX = centerX + Math.cos(midAngle) * (radius * 0.65);
+        const textY = centerY + Math.sin(midAngle) * (radius * 0.65);
 
-        wheelCtx.save();
-        wheelCtx.translate(textX, textY);
-        wheelCtx.rotate(midAngle + (midAngle > Math.PI/2 ? Math.PI : 0));
-        wheelCtx.fillStyle = '#fff';
-        wheelCtx.font = 'bold 12px sans-serif';
-        wheelCtx.textAlign = 'center';
-        wheelCtx.textBaseline = 'middle';
-        wheelCtx.shadowColor = 'rgba(0,0,0,0.5)';
-        wheelCtx.shadowBlur = 4;
-        wheelCtx.fillText(`${player.username} ${player.bet.toFixed(1)}T`, 0, 0);
-        wheelCtx.restore();
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.rotate(midAngle + (midAngle > Math.PI / 2 ? Math.PI : 0));
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(`${player.username} ${player.bet.toFixed(1)}T`, 0, 0);
+        ctx.restore();
 
         startAngle = endAngle;
     });
 
-    // Стрелка
-    wheelCtx.beginPath();
-    wheelCtx.moveTo(centerX, 10);
-    wheelCtx.lineTo(centerX - 15, 30);
-    wheelCtx.lineTo(centerX + 15, 30);
-    wheelCtx.closePath();
-    wheelCtx.fillStyle = '#e74c3c';
-    wheelCtx.fill();
+    // Стрелка сверху
+    ctx.beginPath();
+    ctx.moveTo(centerX, 8);
+    ctx.lineTo(centerX - 14, 28);
+    ctx.lineTo(centerX + 14, 28);
+    ctx.closePath();
+    ctx.fillStyle = '#e74c3c';
+    ctx.fill();
 }
 
-// Функция обновления игроков на колесе
 function updateWheel(players) {
     wheelPlayers = players.map(p => ({
         username: p.username || 'Игрок',
@@ -484,8 +485,3 @@ function updateWheel(players) {
     }));
     drawWheel();
 }
-
-// Запускаем через 1 секунду
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initWheel, 1000);
-});
