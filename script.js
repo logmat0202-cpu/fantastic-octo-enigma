@@ -147,32 +147,47 @@ async function updatePvpStatus() {
     try {
         const response = await fetch(`${SERVER_URL}/api/pvp/status`);
         const data = await response.json();
-        updateWheel(data.players || []);
+
         const statusDisplay = document.getElementById('pvpStatus');
         const playersList = document.getElementById('pvpPlayers');
         const betButtons = document.getElementById('betButtons');
 
-        if (!statusDisplay) return;
-// Обновляем колесо
-updateWheelFromStatus(data);
+        // =============================================
+        // ОБНОВЛЯЕМ КОЛЕСО (ПРЯМО ЗДЕСЬ)
+        // =============================================
+        if (data.players && data.players.length > 0) {
+            wheelPlayers = data.players.map(p => ({
+                username: p.username || 'Игрок',
+                bet: p.bet || 0
+            }));
+        } else {
+            wheelPlayers = [];
+        }
+        drawWheel();
 
-// Если игра активна — показываем сообщение
-if (data.isActive) {
-    document.getElementById('pvpStatus').innerHTML = `
-        <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
-        <p>Игроков: ${data.count}</p>
-        <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
-    `;
-    document.getElementById('betButtons').style.display = 'none';
-}
-        // Обновляем статус
+        // =============================================
+        // СТАТУС ИГРЫ
+        // =============================================
+        if (!statusDisplay) return;
+
         if (data.isActive) {
             statusDisplay.innerHTML = `
-                <p style="color: #2ecc71; font-weight: 600;">⚔️ Игра идёт!</p>
+                <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
                 <p>Игроков: ${data.count}</p>
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
             if (betButtons) betButtons.style.display = 'none';
+            
+            // Запускаем вращение, если ещё не крутится
+            if (!isSpinning && data.players && data.players.length >= 2) {
+                spinWheel(data.players, (winner) => {
+                    console.log('🏆 Победитель:', winner);
+                    setTimeout(() => {
+                        updateBalanceDisplay();
+                        updatePvpStatus();
+                    }, 2000);
+                });
+            }
         } else if (data.count >= 2) {
             statusDisplay.innerHTML = `
                 <p style="color: #f39c12; font-weight: 600;">⏳ Идёт поиск...</p>
@@ -188,8 +203,10 @@ if (data.isActive) {
             if (betButtons) betButtons.style.display = 'block';
         }
 
-        // Список игроков
-        if (playersList && data.players.length > 0) {
+        // =============================================
+        // СПИСОК ИГРОКОВ
+        // =============================================
+        if (playersList && data.players && data.players.length > 0) {
             playersList.innerHTML = data.players.map(p => 
                 `<div class="pvp-player">${p.username} — ${p.bet.toFixed(2)} TON</div>`
             ).join('');
@@ -197,14 +214,15 @@ if (data.isActive) {
             playersList.innerHTML = '<div style="color: var(--hint, #999999);">Пока никого нет</div>';
         }
 
-        // Обновляем баланс
+        // =============================================
+        // ОБНОВЛЯЕМ БАЛАНС
+        // =============================================
         updateBalanceDisplay();
 
     } catch (error) {
         console.error('Ошибка обновления статуса:', error);
     }
 }
-
 // =============================================
 // PVP-СТРАНИЦА: HTML-КОНТЕНТ
 // =============================================
