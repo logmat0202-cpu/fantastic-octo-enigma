@@ -350,3 +350,82 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 setInterval(updateGlobalBalance, 10000);
+// =============================================
+// ВРАЩЕНИЕ КОЛЕСА
+// =============================================
+
+function spinWheel(players, onComplete) {
+    if (isSpinning) return;
+    if (!players || players.length < 2) {
+        console.warn('Нужно минимум 2 игрока');
+        return;
+    }
+
+    isSpinning = true;
+    wheelPlayers = players;
+
+    const canvas = document.getElementById('wheelCanvas');
+    if (canvas) canvas.classList.add('spinning');
+
+    const resultDiv = document.getElementById('wheelResult');
+    if (resultDiv) resultDiv.textContent = '🌀 Колесо вращается...';
+
+    const totalBet = players.reduce((sum, p) => sum + p.bet, 0);
+    const random = Math.random() * totalBet;
+    let cumulative = 0;
+    let winnerIndex = 0;
+    for (let i = 0; i < players.length; i++) {
+        cumulative += players[i].bet;
+        if (random <= cumulative) {
+            winnerIndex = i;
+            break;
+        }
+    }
+
+    let angleToWinner = 0;
+    let tempAngle = 0;
+    for (let i = 0; i < players.length; i++) {
+        const sliceAngle = (players[i].bet / totalBet) * 2 * Math.PI;
+        if (i === winnerIndex) {
+            angleToWinner = tempAngle + sliceAngle / 2;
+            break;
+        }
+        tempAngle += sliceAngle;
+    }
+
+    const extraSpins = 5 + Math.random() * 2;
+    const targetRotation = wheelRotation + extraSpins * 2 * Math.PI + (2 * Math.PI - angleToWinner);
+
+    const startRotation = wheelRotation;
+    const duration = 4000 + Math.random() * 1000;
+    const startTime = Date.now();
+
+    function animateSpin() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        wheelRotation = startRotation + (targetRotation - startRotation) * easeOut;
+        drawWheel();
+
+        if (progress < 1) {
+            requestAnimationFrame(animateSpin);
+        } else {
+            wheelRotation = targetRotation;
+            isSpinning = false;
+            if (canvas) canvas.classList.remove('spinning');
+
+            const winner = players[winnerIndex];
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    🎉 <span style="color: #f1c40f; font-weight: 700;">${winner.username}</span>
+                    выиграл <span style="color: #2ecc71;">${totalBet.toFixed(2)} TON</span>!
+                `;
+            }
+
+            drawWheel(winnerIndex);
+            if (onComplete) onComplete(winner);
+        }
+    }
+
+    animateSpin();
+}
