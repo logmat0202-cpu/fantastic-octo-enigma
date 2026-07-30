@@ -114,6 +114,16 @@ async function placeBet(amount) {
     }
 
     try {
+        // Проверяем статус пула
+        const statusRes = await fetch(`${SERVER_URL}/api/pvp/status`);
+        const statusData = await statusRes.json();
+        
+        // Запрет на ставку, если пользователь уже в пуле
+        if (statusData.players && statusData.players.some(p => p.telegram_id === user.id.toString())) {
+            tg.showAlert('❌ Вы уже сделали ставку! Дождитесь окончания раунда.');
+            return;
+        }
+
         const response = await fetch(`${SERVER_URL}/api/pvp/bet`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
