@@ -268,11 +268,15 @@ async function finishPvpRound() {
             return;
         }
 
-        const newBalance = winnerData.balance + totalPool;
-        const { error: updateError } = await supabase
-            .from('users')
-            .update({ balance: newBalance, wins: winnerData.wins + 1 })
-            .eq('telegram_id', winner.telegram_id);
+       const currentWins = winnerData.wins || 0;  // ← защита от NULL
+const newBalance = winnerData.balance + totalPool;
+const { error: updateError } = await supabase
+    .from('users')
+    .update({ 
+        balance: newBalance, 
+        wins: currentWins + 1 
+    })
+    .eq('telegram_id', winner.telegram_id);
 
         if (updateError) {
             console.error('Ошибка обновления баланса:', updateError);
