@@ -234,10 +234,11 @@ async function finishPvpRound() {
 
     const players = [...pvpPool.players];
     const totalPool = players.reduce((sum, p) => sum + p.bet, 0);
+    const roundId = pvpPool.roundId;
 
-    console.log(`🎯 Раунд ${pvpPool.roundId} завершён! Общий пул: ${totalPool} TON`);
+    console.log(`🎯 Раунд ${roundId} завершён! Общий пул: ${totalPool} TON`);
 
-    // Выбираем победителя (шанс пропорционален ставке)
+    // Выбираем победителя
     const random = Math.random() * totalPool;
     let cumulative = 0;
     let winner = players[0];
@@ -252,11 +253,11 @@ async function finishPvpRound() {
 
     console.log(`🏆 Победитель: ${winner.username} (ставка ${winner.bet} TON)`);
 
-    // Начисляем выигрыш победителю (полный пул)
+    // Начисляем выигрыш
     try {
         const { data: winnerData, error: winnerError } = await supabase
             .from('users')
-            .select('balance')
+            .select('balance, wins')
             .eq('telegram_id', winner.telegram_id)
             .single();
 
@@ -268,48 +269,56 @@ async function finishPvpRound() {
             return;
         }
 
-       const currentWins = winnerData.wins || 0;  // ← защита от NULL
-const newBalance = winnerData.balance + totalPool;
-const { error: updateError } = await supabase
-    .from('users')
-    .update({ 
-        balance: newBalance, 
-        wins: currentWins + 1 
-    })
-    .eq('telegram_id', winner.telegram_id);
+        const currentWins = winnerData.wins || 0;
+        const newBalance = winnerData.balance + totalPool;
+        const newWins = currentWins + 1;
+
+        const { error: updateError } = await supabase
+            .from('users')
+            .update({ balance: newBalance, wins: newWins })
+            .eq('telegram_id', winner.telegram_id);
 
         if (updateError) {
             console.error('Ошибка обновления баланса:', updateError);
         } else {
-            console.log(`💰 ${winner.username} выиграл ${totalPool} TON! Новый баланс: ${newBalance}`);
+            console.log(`💰 ${winner.username} выиграл ${totalPool} TON! Новый баланс: ${newBalance}, Побед: ${newWins}`);
         }
 
     } catch (err) {
         console.error('Ошибка в finishPvpRound:', err);
     }
 
-    // Очищаем пул
-    pvpPool.players = [];
-    pvpPool.isActive = false;
-    pvpPool.roundId = null;
-    pvpPool.timeoutId = null;
-
-    // Сохраняем результат в базу (опционально)
+    // ============================================
+    // СОХРАНЯЕМ ИСТОРИЮ
+    // ============================================
     try {
-        await supabase
+        const { error: historyError } = await supabase
             .from('pvp_history')
             .insert([{
-                round_id: pvpPool.roundId,
+                round_id: roundId,
                 players: JSON.stringify(players),
                 winner_telegram_id: winner.telegram_id,
                 total_pool: totalPool,
                 created_at: new Date().toISOString()
             }]);
-    } catch (err) {
-        console.error('Ошибка сохранения истории:', err);
-    }
-}
 
+        if (historyError) {
+            console.error('Ошибка сохранения истории:', historyError);
+        } else {
+            console.log('✅ История сохранена');
+        }
+    } catch (err) {
+        console.error('Ошибка вставки истории:', err);
+    }
+
+    // ============================================
+    // ОЧИЩАЕМ ПУЛ
+    // ============================================
+    pvpPool.players = [];
+    pvpPool.isActive = false;
+    pvpPool.roundId = null;
+    pvpPool.timeoutId = null;
+}
 // =============================================
 // ЗАПУСК
 // =============================================
