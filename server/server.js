@@ -34,7 +34,8 @@ const pvpPool = {
 };
 
 // =============================================
-// API: ПОЛУЧИТЬ ИЛИ СОЗДАТЬ ПОЛЬЗОВАТЕЛЯ
+// =============================================
+// API: ПОЛУЧИТЬ ИЛИ СОЗДАТЬ ПОЛЬЗОВАТЕЛЯ (БЕЗ ДУБЛЕЙ)
 // =============================================
 app.post('/api/user', async (req, res) => {
     const { telegram_id, username } = req.body;
@@ -44,35 +45,55 @@ app.post('/api/user', async (req, res) => {
     }
 
     try {
+        // Приводим к строке и убираем пробелы (на всякий случай)
+        const cleanTelegramId = String(telegram_id).trim();
+
+        // 1. Ищем пользователя по telegram_id
         let { data: user, error } = await supabase
             .from('users')
             .select('*')
-            .eq('telegram_id', telegram_id)
+            .eq('telegram_id', cleanTelegramId)
             .maybeSingle();
 
+        // Если ошибка не "не найдено" — возвращаем её
         if (error && error.code !== 'PGRST116') {
+            console.error('Ошибка поиска пользователя:', error);
             return res.status(500).json({ error: error.message });
         }
 
-        if (!user) {
-            const { data: newUser, error: insertError } = await supabase
-                .from('users')
-                .insert([{ telegram_id, username: username || 'Игрок', balance: 0, wins: 0 }])
-                .select()
-                .single();
-
-            if (insertError) {
-                return res.status(500).json({ error: insertError.message });
-            }
-            user = newUser;
+        // 2. Если пользователь найден — возвращаем его
+        if (user) {
+            console.log(`✅ Найден пользователь: ${user.username} (${user.telegram_id})`);
+            return res.json(user);
         }
 
-        res.json(user);
+        // 3. Если не найден — создаём нового
+        console.log(`🆕 Создаём нового пользователя: ${cleanTelegramId}`);
+
+        const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert([{ 
+                telegram_id: cleanTelegramId, 
+                username: username || 'Игрок', 
+                balance: 5,   // Стартовый бонус 5 TON
+                wins: 0 
+            }])
+            .select()
+            .single();
+
+        if (insertError) {
+            console.error('Ошибка создания пользователя:', insertError);
+            return res.status(500).json({ error: insertError.message });
+        }
+
+        console.log(`✅ Создан новый пользователь: ${newUser.username} (${newUser.telegram_id})`);
+        res.json(newUser);
+
     } catch (err) {
+        console.error('Ошибка в /api/user:', err);
         res.status(500).json({ error: err.message });
     }
 });
-
 // =============================================
 // API: ОБНОВИТЬ ПОЛЬЗОВАТЕЛЯ
 // =============================================
