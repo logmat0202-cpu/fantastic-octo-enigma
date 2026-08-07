@@ -262,6 +262,23 @@ async function updatePvpStatus() {
 
         if (!statusDisplay) return;
 
+        // =============================================
+        // ЕСЛИ ИГРА АКТИВНА — ЗАПУСКАЕМ ВРАЩЕНИЕ
+        // =============================================
+        if (data.isActive && !isSpinning && data.players && data.players.length >= 2) {
+            console.log('🔄 Запускаем вращение колеса!');
+            spinWheel(data.players, (winner) => {
+                console.log('🏆 Победитель:', winner);
+                setTimeout(() => {
+                    updateGlobalBalance();
+                    updatePvpStatus();
+                }, 2000);
+            });
+        }
+
+        // =============================================
+        // ОБНОВЛЯЕМ ИНТЕРФЕЙС
+        // =============================================
         if (data.isActive) {
             statusDisplay.innerHTML = `
                 <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
@@ -298,7 +315,6 @@ async function updatePvpStatus() {
         console.error('Ошибка обновления статуса:', error);
     }
 }
-
 // =============================================
 // 8. ЗАПУСК
 // =============================================
