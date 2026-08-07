@@ -261,43 +261,12 @@ async function updatePvpStatus() {
         updateWheel(data.players || []);
 
         if (!statusDisplay) return;
+               // =============================================
+        // ЗАПУСК ТАЙМЕРА ПРИ 2+ ИГРОКАХ
         // =============================================
-        // 🟢 СЮДА ВСТАВЛЯЕМ БЛОК С ТАЙМЕРОМ
-        // =============================================
-        // ↓↓↓ ВСТАВЬ СЮДА ↓↓↓
-        
-        if (data.count >= 2 && !isSpinning && !data.isActive) {
-            // Показываем таймер
-            statusDisplay.innerHTML = `
-                <p style="color: #f39c12; font-weight: 600;">⏳ Игра начнётся через 10 секунд!</p>
-                <p>Игроков: ${data.count}</p>
-                <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
-                <p id="timerDisplay" style="font-size: 24px; font-weight: 700; color: #e74c3c;">10</p>
-            `;
-            if (betSection) betSection.style.display = 'none';
-
-            // Запускаем обратный отсчёт
-            let seconds = 10;
-            const timerInterval = setInterval(() => {
-                seconds--;
-                const timerEl = document.getElementById('timerDisplay');
-                if (timerEl) timerEl.textContent = seconds;
-
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    // Запускаем вращение
-                    if (data.players && data.players.length >= 2) {
-                        console.log('🔄 Запускаем вращение колеса!');
-                        spinWheel(data.players, (winner) => {
-                            console.log('🏆 Победитель:', winner);
-                            setTimeout(() => {
-                                updateGlobalBalance();
-                                updatePvpStatus();
-                            }, 2000);
-                        });
-                    }
-                }
-            }, 1000);
+        if (data.count >= 2 && !isSpinning && !timerInterval && !data.isActive) {
+            console.log('⏳ Запускаем таймер 10 секунд');
+            startGameTimer(data.players);
         }
         // =============================================
         // ЕСЛИ ИГРА АКТИВНА — ЗАПУСКАЕМ ВРАЩЕНИЕ
@@ -492,4 +461,57 @@ function spinWheel(players, onComplete) {
     }
 
     animateSpin();
+}
+// =============================================
+// ТАЙМЕР ПЕРЕД ВРАЩЕНИЕМ (ПРОСТОЙ И НАДЁЖНЫЙ)
+// =============================================
+let timerInterval = null;
+
+function startGameTimer(players) {
+    // Если таймер уже запущен — не запускаем новый
+    if (timerInterval) return;
+
+    const statusDisplay = document.getElementById('pvpStatus');
+    const betSection = document.getElementById('betSection');
+
+    // Скрываем кнопки ставок
+    if (betSection) betSection.style.display = 'none';
+
+    let seconds = 10;
+    statusDisplay.innerHTML = `
+        <p style="color: #f39c12; font-weight: 600;">⏳ Игра начнётся через ${seconds} секунд...</p>
+        <p>Игроков: ${players.length}</p>
+        <p id="timerDisplay" style="font-size: 32px; font-weight: 700; color: #e74c3c;">${seconds}</p>
+    `;
+
+    timerInterval = setInterval(() => {
+        seconds--;
+        const timerEl = document.getElementById('timerDisplay');
+        if (timerEl) timerEl.textContent = seconds;
+
+        // Обновляем текст
+        if (statusDisplay) {
+            const textEl = statusDisplay.querySelector('p:first-child');
+            if (textEl) textEl.textContent = `⏳ Игра начнётся через ${seconds} секунд...`;
+        }
+
+        if (seconds <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+
+            // Запускаем вращение
+            statusDisplay.innerHTML = `
+                <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
+                <p>Игроков: ${players.length}</p>
+            `;
+
+            spinWheel(players, (winner) => {
+                console.log('🏆 Победитель:', winner);
+                setTimeout(() => {
+                    updateGlobalBalance();
+                    updatePvpStatus();
+                }, 2000);
+            });
+        }
+    }, 1000);
 }
