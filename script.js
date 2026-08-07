@@ -361,6 +361,7 @@ setInterval(updateGlobalBalance, 10000);
 // ВРАЩЕНИЕ КОЛЕСА (УПРОЩЁННАЯ, НО РАБОЧАЯ)
 // =============================================
 function spinWheel(players, onComplete) {
+    console.log('🔄 spinWheel() вызвана с игроками:', players);
     if (isSpinning) return;
     if (!players || players.length < 2) {
         console.warn('Нужно минимум 2 игрока');
