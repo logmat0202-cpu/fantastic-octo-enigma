@@ -354,6 +354,9 @@ setInterval(updateGlobalBalance, 10000);
 // ВРАЩЕНИЕ КОЛЕСА
 // =============================================
 
+// =============================================
+// ВРАЩЕНИЕ КОЛЕСА (ГАРАНТИРОВАННО РАБОТАЕТ)
+// =============================================
 function spinWheel(players, onComplete) {
     if (isSpinning) return;
     if (!players || players.length < 2) {
@@ -365,11 +368,12 @@ function spinWheel(players, onComplete) {
     wheelPlayers = players;
 
     const canvas = document.getElementById('wheelCanvas');
+    const resultDiv = document.getElementById('wheelResult');
+
+    if (resultDiv) resultDiv.textContent = '🌀 Колесо вращается...';
     if (canvas) canvas.classList.add('spinning');
 
-    const resultDiv = document.getElementById('wheelResult');
-    if (resultDiv) resultDiv.textContent = '🌀 Колесо вращается...';
-
+    // Вычисляем победителя
     const totalBet = players.reduce((sum, p) => sum + p.bet, 0);
     const random = Math.random() * totalBet;
     let cumulative = 0;
@@ -382,6 +386,7 @@ function spinWheel(players, onComplete) {
         }
     }
 
+    // Рассчитываем угол для победителя
     let angleToWinner = 0;
     let tempAngle = 0;
     for (let i = 0; i < players.length; i++) {
@@ -393,6 +398,7 @@ function spinWheel(players, onComplete) {
         tempAngle += sliceAngle;
     }
 
+    // 5-7 полных оборотов + доворот до победителя
     const extraSpins = 5 + Math.random() * 2;
     const targetRotation = wheelRotation + extraSpins * 2 * Math.PI + (2 * Math.PI - angleToWinner);
 
@@ -405,6 +411,7 @@ function spinWheel(players, onComplete) {
         const progress = Math.min(elapsed / duration, 1);
         const easeOut = 1 - Math.pow(1 - progress, 3);
         wheelRotation = startRotation + (targetRotation - startRotation) * easeOut;
+
         drawWheel();
 
         if (progress < 1) {
@@ -422,10 +429,12 @@ function spinWheel(players, onComplete) {
                 `;
             }
 
-            drawWheel(winnerIndex);
+            drawWheel();
+
             if (onComplete) onComplete(winner);
         }
     }
 
     animateSpin();
 }
+  
