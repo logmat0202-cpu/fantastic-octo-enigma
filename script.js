@@ -376,8 +376,10 @@ setInterval(updateGlobalBalance, 10000);
 // =============================================
 // ВРАЩЕНИЕ КОЛЕСА (УПРОЩЁННАЯ, НО РАБОЧАЯ)
 // =============================================
+// =============================================
+// ВРАЩЕНИЕ КОЛЕСА (ДОЛЬШЕ И ПЛАВНЕЕ)
+// =============================================
 function spinWheel(players, onComplete) {
-    console.log('🔄 spinWheel() вызвана с игроками:', players);
     if (isSpinning) return;
     if (!players || players.length < 2) {
         console.warn('Нужно минимум 2 игрока');
@@ -415,20 +417,23 @@ function spinWheel(players, onComplete) {
         tempAngle += sliceAngle;
     }
 
-    // Минимум 5 оборотов + доворот
-    const extraSpins = 5 + Math.random() * 2;
+    // 8-10 полных оборотов (было 5-7)
+    const extraSpins = 8 + Math.random() * 2;
     const targetRotation = extraSpins * 2 * Math.PI + (2 * Math.PI - angleToWinner);
     const startRotation = wheelRotation;
-    const duration = 4000 + Math.random() * 1000;
+    
+    // Увеличиваем длительность: 6-8 секунд (было 4-5)
+    const duration = 6000 + Math.random() * 2000;
     const startTime = Date.now();
 
     function animateSpin() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
+        
+        // Более плавное замедление (easeOutQuint)
+        const easeOut = 1 - Math.pow(1 - progress, 5);
         wheelRotation = startRotation + (targetRotation - startRotation) * easeOut;
 
-        // Принудительно перерисовываем колесо
         drawWheel();
 
         if (progress < 1) {
