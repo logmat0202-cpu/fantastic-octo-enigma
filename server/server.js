@@ -105,6 +105,10 @@ app.post('/api/user/update', async (req, res) => {
     }
 
     try {
+        // Округляем баланс, если он есть в updates
+if (updates.balance !== undefined) {
+    updates.balance = Math.round(updates.balance * 100) / 100;
+}
         const { data, error } = await supabase
             .from('users')
             .update(updates)
@@ -150,7 +154,7 @@ app.post('/api/pvp/bet', async (req, res) => {
         }
 
         // Обновляем баланс (списываем ставку)
-        const newBalance = user.balance - bet;
+       const newBalance = Math.round((user.balance - bet) * 100) / 100;
         const { error: updateError } = await supabase
             .from('users')
             .update({ balance: newBalance })
@@ -270,7 +274,7 @@ async function finishPvpRound() {
         }
 
         const currentWins = winnerData.wins || 0;
-        const newBalance = winnerData.balance + totalPool;
+        const newBalance = Math.round((winnerData.balance + totalPool) * 100) / 100;
         const newWins = currentWins + 1;
 
         const { error: updateError } = await supabase
