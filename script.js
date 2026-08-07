@@ -416,6 +416,9 @@ setInterval(updateGlobalBalance, 10000);
 // =============================================
 // ВРАЩЕНИЕ КОЛЕСА (ДОЛЬШЕ И ПЛАВНЕЕ)
 // =============================================
+// =============================================
+// ВРАЩЕНИЕ КОЛЕСА (СТАРАЯ РАБОЧАЯ ВЕРСИЯ)
+// =============================================
 function spinWheel(players, onComplete) {
     if (isSpinning) return;
     if (!players || players.length < 2) {
@@ -454,21 +457,17 @@ function spinWheel(players, onComplete) {
         tempAngle += sliceAngle;
     }
 
-    // 8-10 полных оборотов (было 5-7)
-    const extraSpins = 8 + Math.random() * 2;
+    // 5-7 оборотов
+    const extraSpins = 5 + Math.random() * 2;
     const targetRotation = extraSpins * 2 * Math.PI + (2 * Math.PI - angleToWinner);
     const startRotation = wheelRotation;
-    
-    // Увеличиваем длительность: 6-8 секунд (было 4-5)
-    const duration = 6000 + Math.random() * 2000;
+    const duration = 4000 + Math.random() * 1000;
     const startTime = Date.now();
 
     function animateSpin() {
         const elapsed = Date.now() - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        
-        // Более плавное замедление (easeOutQuint)
-        const easeOut = 1 - Math.pow(1 - progress, 5);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
         wheelRotation = startRotation + (targetRotation - startRotation) * easeOut;
 
         drawWheel();
