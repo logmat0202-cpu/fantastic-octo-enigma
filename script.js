@@ -181,7 +181,7 @@ function drawWheel() {
     ctx.lineTo(centerX - 14, 28);
     ctx.lineTo(centerX + 14, 28);
     ctx.closePath();
-    ctx.fillStyle = '#e74c3c';
+    ctx.fillStyle = '#97f962';
     ctx.fill();
 }
 
