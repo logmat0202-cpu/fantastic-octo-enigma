@@ -261,7 +261,44 @@ async function updatePvpStatus() {
         updateWheel(data.players || []);
 
         if (!statusDisplay) return;
+        // =============================================
+        // 🟢 СЮДА ВСТАВЛЯЕМ БЛОК С ТАЙМЕРОМ
+        // =============================================
+        // ↓↓↓ ВСТАВЬ СЮДА ↓↓↓
+        
+        if (data.count >= 2 && !isSpinning && !data.isActive) {
+            // Показываем таймер
+            statusDisplay.innerHTML = `
+                <p style="color: #f39c12; font-weight: 600;">⏳ Игра начнётся через 10 секунд!</p>
+                <p>Игроков: ${data.count}</p>
+                <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
+                <p id="timerDisplay" style="font-size: 24px; font-weight: 700; color: #e74c3c;">10</p>
+            `;
+            if (betSection) betSection.style.display = 'none';
 
+            // Запускаем обратный отсчёт
+            let seconds = 10;
+            const timerInterval = setInterval(() => {
+                seconds--;
+                const timerEl = document.getElementById('timerDisplay');
+                if (timerEl) timerEl.textContent = seconds;
+
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    // Запускаем вращение
+                    if (data.players && data.players.length >= 2) {
+                        console.log('🔄 Запускаем вращение колеса!');
+                        spinWheel(data.players, (winner) => {
+                            console.log('🏆 Победитель:', winner);
+                            setTimeout(() => {
+                                updateGlobalBalance();
+                                updatePvpStatus();
+                            }, 2000);
+                        });
+                    }
+                }
+            }, 1000);
+        }
         // =============================================
         // ЕСЛИ ИГРА АКТИВНА — ЗАПУСКАЕМ ВРАЩЕНИЕ
         // =============================================
