@@ -515,3 +515,20 @@ function startGameTimer(players) {
         }
     }, 1000);
 }
+//кошелек
+import { TonConnectUI } from "https://esm.sh/@tonconnect/ui";
+
+const tonConnectUI = new TonConnectUI({
+    manifestUrl: "https://logmat0202-cpu.github.io/fantastic-octo-enigma/tonconnect-manifest.json",
+    buttonRootId: "ton-connect",
+});
+
+// Получение информации после подключения
+tonConnectUI.onStatusChange(wallet => {
+    if (wallet) {
+        console.log("Кошелек подключен!");
+        console.log(wallet);
+    } else {
+        console.log("Кошелек отключен");
+    }
+});
