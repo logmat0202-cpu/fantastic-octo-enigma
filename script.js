@@ -262,50 +262,19 @@ async function updatePvpStatus() {
 
         if (!statusDisplay) return;
 
-        // ===== ТАЙМЕР 10 СЕКУНД =====
-        if (data.count >= 2 && !isSpinning && !data.isActive && !window.timerActive) {
-            window.timerActive = true;
-
-            if (betSection) betSection.style.display = 'none';
-
-            let seconds = 10;
-            statusDisplay.innerHTML = `
-                <p style="color: #f39c12; font-weight: 600;">⏳ Игра начнётся через ${seconds} секунд...</p>
-                <p>Игроков: ${data.count}</p>
-                <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
-                <p id="timerDisplay" style="font-size: 32px; font-weight: 700; color: #e74c3c;">${seconds}</p>
-            `;
-
-            const timerInterval = setInterval(() => {
-                seconds--;
-                const timerEl = document.getElementById('timerDisplay');
-                if (timerEl) timerEl.textContent = seconds;
-
-                const textEl = statusDisplay?.querySelector('p:first-child');
-                if (textEl) textEl.textContent = `⏳ Игра начнётся через ${seconds} секунд...`;
-
-                if (seconds <= 0) {
-                    clearInterval(timerInterval);
-                    window.timerActive = false;
-
-                    if (data.players && data.players.length >= 2) {
-                        statusDisplay.innerHTML = `
-                            <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
-                            <p>Игроков: ${data.players.length}</p>
-                        `;
-                        spinWheel(data.players, (winner) => {
-                            console.log('🏆 Победитель:', winner);
-                            setTimeout(() => {
-                                updateGlobalBalance();
-                                updatePvpStatus();
-                            }, 2000);
-                        });
-                    }
-                }
-            }, 1000);
+        // ===== ЗАПУСК ВРАЩЕНИЯ =====
+        if (data.isActive && !isSpinning && data.players && data.players.length >= 2) {
+            console.log('🔄 Запускаем вращение колеса!');
+            spinWheel(data.players, (winner) => {
+                console.log('🏆 Победитель:', winner);
+                setTimeout(() => {
+                    updateGlobalBalance();
+                    updatePvpStatus();
+                }, 2000);
+            });
         }
 
-        // ===== СТАТУС ИГРЫ =====
+        // ===== СТАТУС =====
         if (data.isActive) {
             statusDisplay.innerHTML = `
                 <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
@@ -313,9 +282,9 @@ async function updatePvpStatus() {
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
             if (betSection) betSection.style.display = 'none';
-        } else if (data.count >= 2 && !window.timerActive) {
+        } else if (data.count >= 2) {
             statusDisplay.innerHTML = `
-                <p style="color: #f39c12; font-weight: 600;">⏳ Ожидание начала...</p>
+                <p style="color: #f39c12; font-weight: 600;">⏳ Идёт поиск...</p>
                 <p>Игроков: ${data.count}</p>
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
@@ -472,28 +441,8 @@ function spinWheel(players, onComplete) {
     }
 
     animateSpin();
-                // После того как победитель объявлен
-            if (onComplete) onComplete(winner);
-            // 👇 ДОБАВЬ ЭТУ СТРОЧКУ
-            finishPvpRoundOnServer(winner);
+             
 }
 // =============================================
 // ТАЙМЕР ПЕРЕД ВРАЩЕНИЕМ (ПРОСТОЙ И НАДЁЖНЫЙ)
-// =============================================
-// ЗАВЕРШИТЬ РАУНД НА СЕРВЕРЕ (ПОСЛЕ ВРАЩЕНИЯ)
-// =============================================
-async function finishPvpRoundOnServer(winner) {
-    try {
-        const response = await fetch(`${SERVER_URL}/api/pvp/finish`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                winner_telegram_id: winner.telegram_id
-            })
-        });
-        const data = await response.json();
-        console.log('✅ Раунд завершён на сервере:', data);
-    } catch (error) {
-        console.error('Ошибка завершения раунда:', error);
-    }
-}
+/
