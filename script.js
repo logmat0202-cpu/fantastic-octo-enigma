@@ -378,16 +378,6 @@ setInterval(updateGlobalBalance, 10000);
 
 // =============================================
 // ВРАЩЕНИЕ КОЛЕСА (ГАРАНТИРОВАННО РАБОТАЕТ)
-// =============================================
-// =============================================
-// ВРАЩЕНИЕ КОЛЕСА (УПРОЩЁННАЯ, НО РАБОЧАЯ)
-// =============================================
-// =============================================
-// ВРАЩЕНИЕ КОЛЕСА (ДОЛЬШЕ И ПЛАВНЕЕ)
-// =============================================
-// =============================================
-// ВРАЩЕНИЕ КОЛЕСА (СТАРАЯ РАБОЧАЯ ВЕРСИЯ)
-// =============================================
 function spinWheel(players, onComplete) {
     if (isSpinning) return;
     if (!players || players.length < 2) {
@@ -401,7 +391,7 @@ function spinWheel(players, onComplete) {
     const resultDiv = document.getElementById('wheelResult');
     if (resultDiv) resultDiv.textContent = '🌀 Колесо вращается...';
 
-    // Вычисляем победителя
+    // 1. Вычисляем победителя
     const totalBet = players.reduce((sum, p) => sum + p.bet, 0);
     const random = Math.random() * totalBet;
     let cumulative = 0;
@@ -414,23 +404,22 @@ function spinWheel(players, onComplete) {
         }
     }
 
-    // Угол победителя
+    // 2. Рассчитываем угол остановки для победителя
+    // Суммируем углы секторов до победителя
     let angleToWinner = 0;
-    let tempAngle = 0;
-    for (let i = 0; i < players.length; i++) {
+    for (let i = 0; i < winnerIndex; i++) {
         const sliceAngle = (players[i].bet / totalBet) * 2 * Math.PI;
-        if (i === winnerIndex) {
-            angleToWinner = tempAngle + sliceAngle / 2;
-            break;
-        }
-        tempAngle += sliceAngle;
+        angleToWinner += sliceAngle;
     }
+    // Добавляем половину сектора победителя (чтобы стрелка указывала в центр)
+    const winnerSliceAngle = (players[winnerIndex].bet / totalBet) * 2 * Math.PI;
+    angleToWinner += winnerSliceAngle / 2;
 
-    // 5-7 оборотов
-    const extraSpins = 5 + Math.random() * 2;
+    // 3. Вычисляем финальный угол (минимум 8 оборотов + доворот)
+    const extraSpins = 8 + Math.random() * 2;
     const targetRotation = extraSpins * 2 * Math.PI + (2 * Math.PI - angleToWinner);
     const startRotation = wheelRotation;
-    const duration = 4000 + Math.random() * 1000;
+    const duration = 5000 + Math.random() * 1000;
     const startTime = Date.now();
 
     function animateSpin() {
