@@ -264,10 +264,55 @@ async function updatePvpStatus() {
                // =============================================
         // ЗАПУСК ТАЙМЕРА ПРИ 2+ ИГРОКАХ
         // =============================================
-        if (data.count >= 2 && !isSpinning && !timerInterval && !data.isActive) {
-            console.log('⏳ Запускаем таймер 10 секунд');
-            startGameTimer(data.players);
+     
+            // =============================================
+        // НОВЫЙ БЛОК (ВСТАВЬ ЭТО ВМЕСТО СТАРОГО)
+        // =============================================
+        if (data.count >= 2 && !isSpinning && !data.isActive && !window.timerActive) {
+            window.timerActive = true;
+
+            const statusDisplay = document.getElementById('pvpStatus');
+            const betSection = document.getElementById('betSection');
+
+            if (betSection) betSection.style.display = 'none';
+
+            let seconds = 10;
+            statusDisplay.innerHTML = `
+                <p style="color: #f39c12; font-weight: 600;">⏳ Игра начнётся через ${seconds} секунд...</p>
+                <p>Игроков: ${data.count}</p>
+                <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
+                <p id="timerDisplay" style="font-size: 32px; font-weight: 700; color: #e74c3c;">${seconds}</p>
+            `;
+
+            const timerInterval = setInterval(() => {
+                seconds--;
+                const timerEl = document.getElementById('timerDisplay');
+                if (timerEl) timerEl.textContent = seconds;
+
+                const textEl = statusDisplay?.querySelector('p:first-child');
+                if (textEl) textEl.textContent = `⏳ Игра начнётся через ${seconds} секунд...`;
+
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    window.timerActive = false;
+
+                    if (data.players && data.players.length >= 2) {
+                        statusDisplay.innerHTML = `
+                            <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
+                            <p>Игроков: ${data.players.length}</p>
+                        `;
+                        spinWheel(data.players, (winner) => {
+                            console.log('🏆 Победитель:', winner);
+                            setTimeout(() => {
+                                updateGlobalBalance();
+                                updatePvpStatus();
+                            }, 2000);
+                        });
+                    }
+                }
+            }, 1000);
         }
+   
         // =============================================
         // ЕСЛИ ИГРА АКТИВНА — ЗАПУСКАЕМ ВРАЩЕНИЕ
         // =============================================
