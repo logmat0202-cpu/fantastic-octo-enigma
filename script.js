@@ -472,6 +472,28 @@ function spinWheel(players, onComplete) {
     }
 
     animateSpin();
+                // После того как победитель объявлен
+            if (onComplete) onComplete(winner);
+            // 👇 ДОБАВЬ ЭТУ СТРОЧКУ
+            finishPvpRoundOnServer(winner);
 }
 // =============================================
 // ТАЙМЕР ПЕРЕД ВРАЩЕНИЕМ (ПРОСТОЙ И НАДЁЖНЫЙ)
+// =============================================
+// ЗАВЕРШИТЬ РАУНД НА СЕРВЕРЕ (ПОСЛЕ ВРАЩЕНИЯ)
+// =============================================
+async function finishPvpRoundOnServer(winner) {
+    try {
+        const response = await fetch(`${SERVER_URL}/api/pvp/finish`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                winner_telegram_id: winner.telegram_id
+            })
+        });
+        const data = await response.json();
+        console.log('✅ Раунд завершён на сервере:', data);
+    } catch (error) {
+        console.error('Ошибка завершения раунда:', error);
+    }
+}
