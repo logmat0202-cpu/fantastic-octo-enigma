@@ -261,18 +261,10 @@ async function updatePvpStatus() {
         updateWheel(data.players || []);
 
         if (!statusDisplay) return;
-               // =============================================
-        // ЗАПУСК ТАЙМЕРА ПРИ 2+ ИГРОКАХ
-        // =============================================
-     
-            // =============================================
-        // НОВЫЙ БЛОК (ВСТАВЬ ЭТО ВМЕСТО СТАРОГО)
-        // =============================================
+
+        // ===== ТАЙМЕР 10 СЕКУНД =====
         if (data.count >= 2 && !isSpinning && !data.isActive && !window.timerActive) {
             window.timerActive = true;
-
-            const statusDisplay = document.getElementById('pvpStatus');
-            const betSection = document.getElementById('betSection');
 
             if (betSection) betSection.style.display = 'none';
 
@@ -312,24 +304,8 @@ async function updatePvpStatus() {
                 }
             }, 1000);
         }
-   
-        // =============================================
-        // ЕСЛИ ИГРА АКТИВНА — ЗАПУСКАЕМ ВРАЩЕНИЕ
-        // =============================================
-        if (data.isActive && !isSpinning && data.players && data.players.length >= 2) {
-            console.log('🔄 Запускаем вращение колеса!');
-            spinWheel(data.players, (winner) => {
-                console.log('🏆 Победитель:', winner);
-                setTimeout(() => {
-                    updateGlobalBalance();
-                    updatePvpStatus();
-                }, 2000);
-            });
-        }
 
-        // =============================================
-        // ОБНОВЛЯЕМ ИНТЕРФЕЙС
-        // =============================================
+        // ===== СТАТУС ИГРЫ =====
         if (data.isActive) {
             statusDisplay.innerHTML = `
                 <p style="color: #2ecc71; font-weight: 600;">⚔️ Колесо вращается!</p>
@@ -337,9 +313,9 @@ async function updatePvpStatus() {
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
             if (betSection) betSection.style.display = 'none';
-        } else if (data.count >= 2) {
+        } else if (data.count >= 2 && !window.timerActive) {
             statusDisplay.innerHTML = `
-                <p style="color: #f39c12; font-weight: 600;">⏳ Идёт поиск...</p>
+                <p style="color: #f39c12; font-weight: 600;">⏳ Ожидание начала...</p>
                 <p>Игроков: ${data.count}</p>
                 <p>Общий пул: ${data.totalPool.toFixed(2)} TON</p>
             `;
@@ -352,6 +328,7 @@ async function updatePvpStatus() {
             if (betSection) betSection.style.display = 'block';
         }
 
+        // ===== СПИСОК ИГРОКОВ =====
         if (playersList && data.players && data.players.length > 0) {
             playersList.innerHTML = data.players.map(p =>
                 `<div class="pvp-player">${p.username} — ${p.bet.toFixed(2)} TON</div>`
