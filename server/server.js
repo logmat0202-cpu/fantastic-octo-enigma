@@ -214,26 +214,15 @@ function startPvpRound() {
     pvpPool.roundId = 'round_' + Date.now();
 
     console.log(`🎯 Раунд ${pvpPool.roundId} начался! Игроков: ${pvpPool.players.length}`);
+    console.log('⏳ Ожидаем завершения от клиента...');
 
-    // Таймер 5 секунд
-    let countdown = 5;
-    console.log(`⏳ Осталось ${countdown} секунд...`);
-
-    pvpPool.timeoutId = setInterval(() => {
-        countdown--;
-        console.log(`⏳ ${countdown} секунд...`);
-
-        if (countdown === 0) {
-            clearInterval(pvpPool.timeoutId);
-            finishPvpRound();
-        }
-    }, 1000);
+    // ⚠️ ТАЙМЕР УБРАН! Теперь завершение только от клиента
 }
 
 // =============================================
 // ФУНКЦИЯ: ЗАВЕРШИТЬ PVP-РАУНД
 // =============================================
-async function finishPvpRound() {
+async function finishPvpRoundWithWinner(winner) {
     if (!pvpPool.isActive) return;
 
     const players = [...pvpPool.players];
@@ -241,23 +230,8 @@ async function finishPvpRound() {
     const roundId = pvpPool.roundId;
 
     console.log(`🎯 Раунд ${roundId} завершён! Общий пул: ${totalPool} TON`);
-
-    // Выбираем победителя
-    const random = Math.random() * totalPool;
-    let cumulative = 0;
-    let winner = players[0];
-
-    for (const player of players) {
-        cumulative += player.bet;
-        if (random <= cumulative) {
-            winner = player;
-            break;
-        }
-    }
-
     console.log(`🏆 Победитель: ${winner.username} (ставка ${winner.bet} TON)`);
 
-    // Начисляем выигрыш
     try {
         const { data: winnerData, error: winnerError } = await supabase
             .from('users')
@@ -289,12 +263,10 @@ async function finishPvpRound() {
         }
 
     } catch (err) {
-        console.error('Ошибка в finishPvpRound:', err);
+        console.error('Ошибка в finishPvpRoundWithWinner:', err);
     }
 
-    // ============================================
-    // СОХРАНЯЕМ ИСТОРИЮ
-    // ============================================
+    // Сохраняем историю
     try {
         const { error: historyError } = await supabase
             .from('pvp_history')
@@ -315,9 +287,7 @@ async function finishPvpRound() {
         console.error('Ошибка вставки истории:', err);
     }
 
-    // ============================================
-    // ОЧИЩАЕМ ПУЛ
-    // ============================================
+    // Очищаем пул
     pvpPool.players = [];
     pvpPool.isActive = false;
     pvpPool.roundId = null;
@@ -330,4 +300,34 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ Сервер запущен на порту ${PORT}`);
     console.log('⚔️ PvP-модуль готов!');
+});
+// =============================================
+// API: ЗАВЕРШИТЬ РАУНД (ВЫЗЫВАЕТСЯ С КЛИЕНТА)
+// =============================================
+app.post('/api/pvp/finish', async (req, res) => {
+    const { winner_telegram_id } = req.body;
+
+    if (!winner_telegram_id) {
+        return res.status(400).json({ error: 'winner_telegram_id обязателен' });
+    }
+
+    // Проверяем, что игра активна
+    if (!pvpPool.isActive) {
+        return res.status(400).json({ error: 'Игра не активна' });
+    }
+
+    try {
+        // Находим победителя в пуле
+        const winner = pvpPool.players.find(p => p.telegram_id === winner_telegram_id);
+        if (!winner) {
+            return res.status(404).json({ error: 'Победитель не найден в пуле' });
+        }
+
+        // Завершаем раунд
+        await finishPvpRoundWithWinner(winner);
+        res.json({ success: true, message: 'Раунд завершён' });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
