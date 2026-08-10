@@ -11,6 +11,61 @@
 </head>
 <body>
 <!-- ===== БАЛАНС (ПРАВЫЙ ВЕРХНИЙ УГОЛ) ===== -->
+        <!-- ===== КОШЕЛЕК (ПРАВЫЙ ВЕРХНИЙ УГОЛ) ===== -->
+<div id="walletContainer" style="
+    position: fixed;
+    top: 62px;
+    right: 12px;
+    z-index: 99999;
+    background: var(--tg-theme-bg-color, #ffffff);
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    border: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
+    min-width: 130px;
+    text-align: center;
+">
+    <button id="connectWalletBtn" style="
+        background: var(--tg-theme-button-color, #2481cc);
+        color: var(--tg-theme-button-text-color, #ffffff);
+        border: none;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+    ">
+        🔌 Подключить
+    </button>
+    <div id="walletInfo" style="display: none;">
+        <div id="walletAddress" style="
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin: 4px 0;
+        ">—</div>
+        <div id="walletBalance" style="
+            font-size: 12px;
+            color: var(--tg-theme-hint-color, #999999);
+        ">—</div>
+        <button id="walletDisconnectBtn" style="
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 12px;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+        ">
+            Отключить
+        </button>
+    </div>
+</div>
 <div id="balanceFloat" style="
     position: fixed;
     top: 62px;
@@ -129,61 +184,7 @@
             </div>
           <!-- ===== TON CONNECT UI ===== -->
 
-    <!-- ===== КОШЕЛЕК (ПРАВЫЙ ВЕРХНИЙ УГОЛ) ===== -->
-<div id="walletContainer" style="
-    position: fixed;
-    top: 62px;
-    right: 12px;
-    z-index: 99999;
-    background: var(--tg-theme-bg-color, #ffffff);
-    border-radius: 12px;
-    padding: 8px 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    border: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
-    min-width: 130px;
-    text-align: center;
-">
-    <button id="connectWalletBtn" style="
-        background: var(--tg-theme-button-color, #2481cc);
-        color: var(--tg-theme-button-text-color, #ffffff);
-        border: none;
-        border-radius: 8px;
-        padding: 6px 12px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-    ">
-        🔌 Подключить
-    </button>
-    <div id="walletInfo" style="display: none;">
-        <div id="walletAddress" style="
-            font-size: 12px;
-            font-weight: 500;
-            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
-            padding: 2px 8px;
-            border-radius: 6px;
-            margin: 4px 0;
-        ">—</div>
-        <div id="walletBalance" style="
-            font-size: 12px;
-            color: var(--tg-theme-hint-color, #999999);
-        ">—</div>
-        <button id="walletDisconnectBtn" style="
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 4px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 4px;
-        ">
-            Отключить
-        </button>
-    </div>
-</div>
+
 </div>
         
 
