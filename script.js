@@ -476,3 +476,45 @@ function spinWheel(players, onComplete) {
 
     animateSpin();
 }
+// =============================================
+// TON CONNECT UI
+// =============================================
+
+let tonConnectUI = null;
+const MANIFEST_URL = window.location.origin + '/tonconnect-manifest.json';
+
+async function initTonConnectUI() {
+    try {
+        // Проверяем, загружена ли библиотека
+        if (typeof window.TonConnectUI === 'undefined') {
+            console.warn('⚠️ TON Connect UI не загружен!');
+            return;
+        }
+
+        // Создаём экземпляр UI
+        tonConnectUI = new window.TonConnectUI({
+            manifestUrl: MANIFEST_URL,
+            buttonRootId: 'ton-connect-button'
+        });
+
+        // Подписываемся на изменения статуса
+        tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) {
+                console.log('✅ Кошелёк подключён:', wallet.account.address);
+                // Можно обновить баланс или показать адрес
+            } else {
+                console.log('❌ Кошелёк отключён');
+            }
+        });
+
+        console.log('✅ TON Connect UI инициализирован');
+
+    } catch (error) {
+        console.error('❌ Ошибка инициализации TON Connect UI:', error);
+    }
+}
+
+// Запускаем через 1 секунду
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initTonConnectUI, 1000);
+});
