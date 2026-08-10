@@ -477,31 +477,28 @@ function spinWheel(players, onComplete) {
     animateSpin();
 }
 // =============================================
-// TON CONNECT UI
-// =============================================
-// =============================================
-// TON CONNECT (ЧЕРЕЗ SDK)
-// =============================================
-
-let tonConnector = null;
-const MANIFEST_URL = window.location.origin + '/tonconnect-manifest.json';
-
 async function initTonConnect() {
     try {
+        // Ещё раз проверяем, загружена ли библиотека
         if (typeof window.TonConnect === 'undefined') {
-            console.warn('⚠️ TON SDK не загружен');
+            console.warn('⚠️ TON SDK всё ещё не загружен');
+            const btn = document.getElementById('connectWalletBtn');
+            if (btn) btn.textContent = '❌ TON не загружен';
             return;
         }
 
+        // Создаём экземпляр
         tonConnector = new window.TonConnect({
             manifestUrl: MANIFEST_URL
         });
 
+        // Проверяем, есть ли уже подключенный кошелек
         const wallet = tonConnector.wallet;
         if (wallet) {
             showWalletInfo(wallet);
         }
 
+        // Подписываемся на изменения статуса
         tonConnector.onStatusChange((wallet) => {
             if (wallet) {
                 showWalletInfo(wallet);
@@ -510,51 +507,33 @@ async function initTonConnect() {
             }
         });
 
-        document.getElementById('connectWalletBtn').addEventListener('click', async () => {
-            try {
-                await tonConnector.connect();
-            } catch (error) {
-                console.error('Ошибка:', error);
-                tg.showAlert('Не удалось подключить кошелек');
-            }
-        });
+        // Кнопка "Подключить"
+        const connectBtn = document.getElementById('connectWalletBtn');
+        if (connectBtn) {
+            connectBtn.addEventListener('click', async () => {
+                try {
+                    await tonConnector.connect();
+                } catch (error) {
+                    console.error('Ошибка подключения:', error);
+                    tg.showAlert('Не удалось подключить кошелек');
+                }
+            });
+            connectBtn.textContent = '🔌 Подключить';
+        }
 
-        document.getElementById('walletDisconnectBtn').addEventListener('click', () => {
-            tonConnector.disconnect();
-        });
+        // Кнопка "Отключить"
+        const disconnectBtn = document.getElementById('walletDisconnectBtn');
+        if (disconnectBtn) {
+            disconnectBtn.addEventListener('click', () => {
+                tonConnector.disconnect();
+            });
+        }
 
         console.log('✅ TON инициализирован');
 
     } catch (error) {
-        console.error('❌ Ошибка:', error);
+        console.error('❌ Ошибка инициализации TON:', error);
+        const btn = document.getElementById('connectWalletBtn');
+        if (btn) btn.textContent = '❌ Ошибка';
     }
 }
-
-function showWalletInfo(wallet) {
-    const address = wallet.account.address;
-    document.getElementById('walletAddress').textContent = address.slice(0, 6) + '...' + address.slice(-4);
-    document.getElementById('connectWalletBtn').style.display = 'none';
-    document.getElementById('walletInfo').style.display = 'block';
-    loadWalletBalance(address);
-}
-
-function hideWalletInfo() {
-    document.getElementById('walletAddress').textContent = '—';
-    document.getElementById('connectWalletBtn').style.display = 'block';
-    document.getElementById('walletInfo').style.display = 'none';
-}
-
-async function loadWalletBalance(address) {
-    try {
-        const response = await fetch(`https://tonapi.io/v2/accounts/${address}`);
-        const data = await response.json();
-        const balance = data.balance / 1e9;
-        document.getElementById('walletBalance').textContent = balance.toFixed(2) + ' TON';
-    } catch (error) {
-        document.getElementById('walletBalance').textContent = 'Ошибка';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initTonConnect, 1000);
-});
