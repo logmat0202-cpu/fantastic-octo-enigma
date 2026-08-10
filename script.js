@@ -263,9 +263,9 @@ async function updatePvpStatus() {
         if (!statusDisplay) return;
 
         // =============================================
-        // ТАЙМЕР 10 СЕКУНД (НОВЫЙ)
+        // ТАЙМЕР 10 СЕКУНД (ЗАПУСКАЕТСЯ ПРИ 2+ ИГРОКАХ)
         // =============================================
-        if (data.count >= 2 && !isSpinning && !data.isActive && !window.timerActive) {
+        if (data.count >= 2 && !isSpinning && !window.timerActive) {
             window.timerActive = true;
 
             if (betSection) betSection.style.display = 'none';
@@ -309,7 +309,7 @@ async function updatePvpStatus() {
         }
 
         // =============================================
-        // СТАТУС ИГРЫ (без изменений)
+        // СТАТУС ИГРЫ
         // =============================================
         if (data.isActive) {
             statusDisplay.innerHTML = `
