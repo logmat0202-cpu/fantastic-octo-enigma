@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GiftMarket</title>
     <!-- TON Connect UI -->
-    
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <link rel="stylesheet" href="style.css" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -41,7 +41,7 @@
         <!-- СТРАНИЦА 1: МАГАЗИН -->
         <div id="page-shop" class="page">
             <h2>🛍️ Магазин</h2>
-            <p>Здесь буду </p>
+            <p>Здесь буд </p>
         </div>
 
 <div id="page-pvp" class="page">
@@ -127,7 +127,22 @@
             <div id="profileInfo">
                 <p>Загрузка...</p>
             </div>
-          
+          <!-- ===== TON CONNECT UI ===== -->
+<div id="ton-connect-container" style="
+    position: fixed;
+    top: 62px;
+    right: 12px;
+    z-index: 99999;
+    background: var(--tg-theme-bg-color, #ffffff);
+    border-radius: 12px;
+    padding: 6px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    border: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
+    min-width: 140px;
+    text-align: center;
+">
+    <div id="ton-connect-button"></div>
+</div>
         </div>
 
     </div>
